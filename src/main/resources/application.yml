@@ -1,0 +1,16 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 
+            client-secret: 
+            scope: profile, email, https://www.googleapis.com/auth/contacts, https://www.googleapis.com/auth/contacts.readonly
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"  # ✅ Spring Boot automatically replaces {baseUrl}
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs

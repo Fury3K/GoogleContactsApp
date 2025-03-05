@@ -5,8 +5,7 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.people.v1.PeopleService;
-import com.google.api.services.people.v1.model.ListConnectionsResponse;
-import com.google.api.services.people.v1.model.Person;
+import com.google.api.services.people.v1.model.*;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -31,5 +30,19 @@ public class PeopleServiceHelper {
                 .setPersonFields("names,emailAddresses")
                 .execute();
         return response.getConnections();
+    }
+
+    public Person createContact(PeopleService peopleService, Person newContact) throws IOException {
+        return peopleService.people().createContact(newContact).execute();
+    }
+
+    public Person updateContact(PeopleService peopleService, String resourceName, Person updatedContact) throws IOException {
+        return peopleService.people().updateContact(resourceName, updatedContact)
+                .setUpdatePersonFields("names,emailAddresses")
+                .execute();
+    }
+
+    public void deleteContact(PeopleService peopleService, String resourceName) throws IOException {
+        peopleService.people().deleteContact(resourceName).execute();
     }
 }

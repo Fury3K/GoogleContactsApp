@@ -13,18 +13,42 @@
             <p th:text="${error}"></p>
         </div>
 
+        <!-- Add New Contact Form -->
+        <h4>Add Contact</h4>
+        <form th:action="@{/contacts/add}" method="post" class="mb-4">
+            <input type="text" name="name" placeholder="Full Name" required class="form-control mb-2">
+            <input type="email" name="email" placeholder="Email Address" class="form-control mb-2">
+            <button type="submit" class="btn btn-success">Add Contact</button>
+        </form>
+
         <!-- Contacts Table -->
         <table class="table table-striped" th:if="${contacts}">
             <thead>
                 <tr>
                     <th>Name</th>
                     <th>Email</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <tr th:each="contact : ${contacts}">
-                    <td th:text="${contact.names != null and contact.names.size() > 0 ? contact.names[0].displayName : 'No Name'}"></td>
-                    <td th:text="${contact.emailAddresses != null and contact.emailAddresses.size() > 0 ? contact.emailAddresses[0].value : 'No Email'}"></td>
+                    <span th:text="${contact.name != null ? contact.name : 'No Name'}"></span>
+                    <td th:text="${#strings.defaultString(contact.email, 'No Email')}"></td>
+                    <td>
+                        <!-- Update Contact Form -->
+                        <form th:action="@{/contacts/update}" method="post" class="d-inline">
+                            <input type="hidden" name="resourceName" th:value="${contact.resourceName}">
+                            <input type="text" name="name" placeholder="New Name" required class="form-control mb-2">
+                            <input type="email" name="email" placeholder="New Email" class="form-control mb-2">
+                            <button type="submit" class="btn btn-warning btn-sm">Update</button>
+                        </form>
+
+                        <!-- Delete Contact Button -->
+                        <form th:action="@{/contacts/delete}" method="post" class="d-inline">
+                            <input type="hidden" name="resourceName" th:value="${contact.resourceName}">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
                 </tr>
             </tbody>
         </table>

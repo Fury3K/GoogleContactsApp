@@ -46,6 +46,11 @@
 
         <!-- Google People API Dependencies -->
         <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-people</artifactId>
+            <version>v1-rev305-1.25.0</version> <!-- Use the correct version -->
+        </dependency>
+        <dependency>
             <groupId>com.google.auth</groupId>
             <artifactId>google-auth-library-oauth2-http</artifactId>
             <version>1.21.0</version>
