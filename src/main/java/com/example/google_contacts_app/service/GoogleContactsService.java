@@ -18,14 +18,20 @@ public class GoogleContactsService {
 
     // Get all contacts
     public List<Person> getAllContacts() throws IOException {
-        List<Person> contacts = peopleService.people().connections()
-            .list("people/me")
-            .setPersonFields("names,emailAddresses,phoneNumbers")
-            .execute()
-            .getConnections();
-
-        // Ensure every contact has at least a default name
-        if (contacts != null) {
+        try {
+            List<Person> contacts = peopleService.people().connections()
+                .list("people/me")
+                .setPersonFields("names,emailAddresses,phoneNumbers")
+                .execute()
+                .getConnections();
+    
+            if (contacts == null || contacts.isEmpty()) {
+                // Log a warning if no contacts are found
+                System.out.println("No contacts found.");
+                return Collections.emptyList();
+            }
+            
+            // Ensure every contact has at least a default name
             for (Person contact : contacts) {
                 if (contact.getNames() == null || contact.getNames().isEmpty()) {
                     contact.setNames(Collections.singletonList(
@@ -33,9 +39,14 @@ public class GoogleContactsService {
                     ));
                 }
             }
+    
+            return contacts;
+    
+        } catch (IOException e) {
+            // Log and rethrow the exception
+            System.err.println("Error fetching contacts: " + e.getMessage());
+            throw new IOException("Error fetching contacts from Google API.", e);
         }
-
-        return contacts;
     }
 
     // Add a contact

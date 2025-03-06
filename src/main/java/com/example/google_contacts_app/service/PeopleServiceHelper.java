@@ -31,6 +31,8 @@ public class PeopleServiceHelper {
                 .execute();
         return response.getConnections();
     }
+    
+
 
     public Person createContact(PeopleService peopleService, Person newContact) throws IOException {
         return peopleService.people().createContact(newContact).execute();

@@ -1,9 +1,11 @@
 package com.example.google_contacts_app.controller;
 
 import com.example.google_contacts_app.service.PeopleServiceHelper;
+import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.services.people.v1.PeopleService;
 import com.google.api.services.people.v1.model.Person;
+
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -33,7 +35,15 @@ public class GoogleContactsController {
                 token.getAuthorizedClientRegistrationId(),
                 token.getName()
         );
-        return (client != null && client.getAccessToken() != null) ? client.getAccessToken().getTokenValue() : null;
+
+        if (client == null || client.getAccessToken() == null) {
+            System.err.println("Access token is missing or invalid.");
+            return null;
+        }
+
+        String accessToken = client.getAccessToken().getTokenValue();
+        System.out.println("Access token retrieved successfully.");
+        return accessToken;
     }
 
     @GetMapping
@@ -45,11 +55,12 @@ public class GoogleContactsController {
         }
 
         try {
-            GoogleCredential credential = new GoogleCredential().setAccessToken(accessToken);
+            Credential credential = new GoogleCredential().setAccessToken(accessToken);
             PeopleService peopleService = peopleServiceHelper.getPeopleService(credential);
             List<Person> contacts = peopleServiceHelper.getContacts(peopleService);
             model.addAttribute("contacts", contacts);
         } catch (GeneralSecurityException | IOException e) {
+            System.err.println("Error fetching contacts: " + e.getMessage());
             model.addAttribute("error", "Error fetching contacts: " + e.getMessage());
         }
         return "contacts";
@@ -64,16 +75,17 @@ public class GoogleContactsController {
         }
 
         try {
-            GoogleCredential credential = new GoogleCredential().setAccessToken(accessToken);
+            Credential credential = new GoogleCredential().setAccessToken(accessToken);
             PeopleService peopleService = peopleServiceHelper.getPeopleService(credential);
             peopleServiceHelper.createContact(peopleService, newContact);
         } catch (GeneralSecurityException | IOException e) {
+            System.err.println("Error adding contact: " + e.getMessage());
             model.addAttribute("error", "Error adding contact: " + e.getMessage());
         }
         return "redirect:/contacts";
     }
 
-    @PutMapping("/{contactId}")
+    @PostMapping("/update/{contactId}")
     public String updateContact(OAuth2AuthenticationToken token, @PathVariable String contactId, @RequestBody Person updatedContact, Model model) {
         String accessToken = getAccessToken(token);
         if (accessToken == null) {
@@ -82,16 +94,17 @@ public class GoogleContactsController {
         }
 
         try {
-            GoogleCredential credential = new GoogleCredential().setAccessToken(accessToken);
+            Credential credential = new GoogleCredential().setAccessToken(accessToken);
             PeopleService peopleService = peopleServiceHelper.getPeopleService(credential);
             peopleServiceHelper.updateContact(peopleService, contactId, updatedContact);
         } catch (GeneralSecurityException | IOException e) {
+            System.err.println("Error updating contact: " + e.getMessage());
             model.addAttribute("error", "Error updating contact: " + e.getMessage());
         }
         return "redirect:/contacts";
     }
 
-    @DeleteMapping("/{contactId}")
+    @PostMapping("/delete/{contactId}")
     public String deleteContact(OAuth2AuthenticationToken token, @PathVariable String contactId, Model model) {
         String accessToken = getAccessToken(token);
         if (accessToken == null) {
@@ -100,10 +113,11 @@ public class GoogleContactsController {
         }
 
         try {
-            GoogleCredential credential = new GoogleCredential().setAccessToken(accessToken);
+            Credential credential = new GoogleCredential().setAccessToken(accessToken);
             PeopleService peopleService = peopleServiceHelper.getPeopleService(credential);
             peopleServiceHelper.deleteContact(peopleService, contactId);
         } catch (GeneralSecurityException | IOException e) {
+            System.err.println("Error deleting contact: " + e.getMessage());
             model.addAttribute("error", "Error deleting contact: " + e.getMessage());
         }
         return "redirect:/contacts";
